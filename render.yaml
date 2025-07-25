@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: mern-ecommerce-app
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: |
+      npm install
+      cd frontend && npm install && npm run build && cd ..
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    healthCheckPath: /api/health
+    
+databases:
+  - name: mern-ecommerce-db
+    databaseName: ecommerce
+    user: ecommerce_user
+    region: oregon
+    plan: starter
+    
+static:
+  - type: static
+    name: mern-ecommerce-frontend
+    staticPublishPath: ./frontend/build
+    buildCommand: cd frontend && npm install && npm run build
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://mern-ecommerce-app.onrender.com/api/*
+      - type: rewrite  
+        source: /*
+        destination: /index.html
